@@ -3,12 +3,12 @@
 <input type="hidden" id="customer_school" value="{%for school in customer.tags%}{%if school contains 'Your School: '%}{{school | remove: 'Your School: ' | replace: ' | ',', '}}{%endif%}{%endfor%}"/>
 <input type="hidden" id="product_id" value="{{product.id}}"/>
 <input type="hidden" id="event_date" value="{{ 'now' | date: '%Y-%m-%d'}}"/>
-
+{%comment%}
 <div class="selector-wrapper main-product-select-{{product.id}}">
-   <label class="" for="select-date">Evt. Date</label>
+   <label class="" for="event_date">Evt. Date</label>
    <input class="product-input" id="event_date" type="date" name="properties[Event Date]" value="{{'now' | date: '%Y-%m-%d'}}" required />
 </div>
-
+{%endcomment%}
 <div id="verification"></div>
 <a href="JavaScript:Void(0);" id="verifybutton" class="btn btn-primary btn-lg verify-button">Verify this Dress</a>
 {% else %}
