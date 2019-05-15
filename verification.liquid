@@ -1,7 +1,8 @@
 {% if shop.customer_accounts_enabled %}{% if customer %}
 <input type="hidden" id="customer_email" value="{{customer.email}}"/>
-<input type="hidden" id="customer_school" value="David W. Carter High School, Dallas"/>
+<input type="hidden" id="customer_school" value="{%for school in customer.tags%}{%if school contains 'Your School: '%}{{school | remove: 'Your School: '}}{%endif%}{%endfor%}"/>
 <input type="hidden" id="product_id" value="{{product.id}}"/>
+<input type="hidden" id="event_date" value="{{ 'now' | date: '%Y-%m-%d'}}"/>
 
 <div class="selector-wrapper main-product-select-{{product.id}}">
    <label class="" for="select-date">Evt. Date</label>
@@ -13,15 +14,21 @@
 <div id="result"></div>
 
 <script>
-  $("#verifybutton").on("click", function () {
-    //onclick verification here
-  });
-  //?page=2&limit=10&status=any&financial_status=any&fulfillment_status=any&direction=asc
   var customer_email_c =false,customer_school_c = false,product_id_c =false,event_date_c =false;
   jQuery(document).ready(function(){
+    var api_url = 'stellatestschool.myshopify.com/admin/api/2019-04/orders.json',
+        key = '3e5987232f469e21aabcc5dbf5488387:aa23dfa15f723b4facb96d992a4d4504';
     jQuery.ajax({
-      url:"https://3e5987232f469e21aabcc5dbf5488387:aa23dfa15f723b4facb96d992a4d4504@stellatestschool.myshopify.com/admin/api/2019-04/orders.json",
-      method:"get",
+      url:"https://"+key+"@"+api_url,
+      //data: function(params) {
+      //   var query = {
+      //      page: params.num || 1,
+      //      limit: 10
+      //   }
+      //   Query parameters will be ?page=2&limit=10&status=any&financial_status=any&fulfillment_status=any&direction=asc
+      //   return query;
+      //}
+      method:"GET",
       success:function(data){
         console.log(data);
         var _orders = data.orders;
@@ -43,11 +50,12 @@
             
             if(_orders.length > 0 && _orders[0].line_items != null){
             	product_id = _orders[0].line_items[0].product_id; 
-              	event_date = _orders[0].line_items[0].properties; 
-              	event_date = event_date != null ? event_date.find(x=>x.name == "Event Date") : "";
-              	event_date = event_date ? event_date.value : event_date;
+              	event_date = _orders[0].created_at; 
+              	//event_date = event_date != null ? event_date.find(x=>x.name == "Event Date") : "";
+              	//event_date = event_date ? event_date.value : event_date;
                 var aDate = new Date(event_date);
-              	aDate.setFullYear(aDate.getFullYear() + 1)
+              	event_date = aDate.getFullYear() +"-"+(aDate.getMonth()+1) +"-"+ aDate.getDate();
+              	aDate.setFullYear(aDate.getFullYear() + 1);
                 event_date_y = aDate.getFullYear() +"-"+aDate.getMonth() +"-"+ aDate.getDate();
             }
             customer_email_c = (customer_email != null && customer_email == customer_email_v) ? true : customer_email_c;
@@ -60,9 +68,19 @@
           }
           if(customer_email_c && event_date_c && customer_school_c && product_id_c){
             $('#AddToCart-product-prom-template').prop('disabled', true);//alert("true");
+            $('#AddToCartText-product-prom-template').text('Sold Out');
+            $("#verifybutton").hide();
+            $('#verification').text('You have purchased this dress before try another one.');
             return true;
           }else{
-            alert("Compared values are not the same");
+            $("#verifybutton").on("click", function () {
+              if(event_date_c && customer_school_c && product_id_c){
+                $('#verification').text('Another customer from your school have this dress.');//alert("true");
+                return true;
+              }else{
+                $('#verification').text('Congrats! You can purchase this dress. You will look unique at your school.');//alert("true");
+              }
+            });
             return false;
           }
         }else{
