@@ -1,0 +1,96 @@
+<header class="page-header as-background page-header as-background hero--l-small mb30 vertical-centered" >
+  <div class="page-header-inner-bottom">
+    <h1 class="collection-page-header-title page-header-title-sm ">{{ 'customer.login.title' | t }}</h1>
+  </div>
+</header>
+  {% include 'breadcrumb' breadcrumb_class:"page-header-breadcrumb" %}
+<div class="main-content-inner account-page container">
+  <div class="row">
+    <div class="col-md-4 centered-content">
+      <div class="note form-success hide" id="ResetSuccess">
+        {{ 'customer.recover_password.success' | t }}
+      </div>
+      <div id="CustomerLoginForm">
+        {% form 'customer_login', class:'login-form' %}
+          {% include 'form-errors-custom' %}
+          <label class="fields_label" for="CustomerEmail">{{ 'customer.login.email' | t }}</label>
+          <input type="email" name="customer[email]" id="CustomerEmail" class="login-input {% if form.errors contains 'email' %} input--error{% endif %}" autocorrect="off" autocapitalize="off" autofocus>
+          {% if form.password_needed %}
+             <label class="fields_label" for="CustomerPassword">{{ 'customer.login.password' | t }}</label>
+         	 <input type="password" value="" name="customer[password]" id="CustomerPassword" class="login-input {% if form.errors contains 'password' %} input--error{% endif %}">
+          {% endif %}
+          {%comment%}<label class="fields_label" for="ChooseCollection">Choose Collection</label>
+          <select name="customer[note][Collection]" id="ChooseCollection" class="login-input">
+            <option value="/collections/all" id="urlRedirect2" selected>Goto Previous Page</option>
+            {% for collection in collections %}{%if collection.title != 'Home page' %}
+            <option value="{{collection.url}}">{{collection.title}}</option>
+            {% endif %}{% endfor %}
+          </select> {%endcomment%}
+          <input type="hidden" id="urlRedirect" name="checkout_url" value="/collections/all" />
+        
+          <button type="submit" class="btn btn-primary">{{ 'customer.login.sign_in' | t }}</button>
+          <p class='mt50'>
+            New Customer? {{ 'layout.customer.create_account' | t | customer_register_link }}
+          </p>
+          {% if form.password_needed %}
+         	 <p><a href="#recover" id="RecoverPassword">{{ 'customer.login.forgot_password' | t }}</a></p>
+          {% endif %}
+        {% endform %}
+      </div>
+      <div id="RecoverPasswordForm" class="hide">
+        <h2 class="page-title">{{ 'customer.recover_password.title' | t }}</h2>
+        <h5 class="text-center">{{ 'customer.recover_password.subtext' | t }}</h5>
+        <div class="form-vertical">
+          {% form 'recover_customer_password' %}
+            {% include 'form-errors-custom' %}
+            {% comment %}
+            	Add a hidden span to indicate the form was submitted succesfully.
+            {% endcomment %}
+            {% if form.posted_successfully? %}
+            	<span class="hide reset-password-success"></span>
+            {% endif %}
+          	<label class="fields_label" for="RecoverEmail">{{ 'customer.recover_password.email' | t }}</label>
+            <input type="email" value="" name="email" id="RecoverEmail" class="login-input" autocorrect="off" autocapitalize="off">
+            <div class="text-center">
+              <button type="button" id="HideRecoverPasswordLink" class="btn btn-primary">{{ 'customer.recover_password.cancel' | t }}</button> 
+              <button type="submit" class="submit-recover-pass btn btn-primary">{{ 'customer.recover_password.submit' | t }}</button>         
+            </div>
+          {% endform %}
+        </div>
+      </div>
+      {% comment %}
+        If accounts are set as optional, the following will be shown as an option
+        during checkout, not on the default /login page.
+      {% endcomment %}
+      {% if shop.checkout.guest_login %}
+        <div class="text-center">
+          <hr class="hr--invisible">
+          <h2>{{ 'customer.login.guest_title' | t }}</h2>
+          {% form 'guest_login' %}
+          <button type="submit" class="btn btn-primary">{{ 'customer.login.guest_continue' | t }}</button>
+          {% endform %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function(){
+    //$("#ChooseCollection").change(function(){
+    //    var selectedCollection = $(this).children("option:selected").val();
+    //    $("#urlRedirect").val(selectedCollection);
+    //});
+	document.getElementById("urlRedirect").value=getQueryVariable("url");
+    //document.getElementById("urlRedirect2").value=getQueryVariable("url");
+  });
+
+  function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+        	var pair = vars[i].split("=");
+        	if(pair[0] == variable){return pair[1];}
+        }
+        return("/collections/all");
+  }
+</script>
