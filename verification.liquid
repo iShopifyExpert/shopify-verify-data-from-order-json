@@ -9,6 +9,10 @@
    <input class="product-input" id="event_date" type="date" name="properties[Event Date]" value="{{'now' | date: '%Y-%m-%d'}}" required />
 </div>
 <a href="#" id="verifybutton" class="btn btn-primary btn-lg verify-button">Verify this Dress</a>
+{% else %}
+<div class="product-item-caption-desc border-bottom">
+  <p>Login to buy this. <a href="/account/login?url={{ theme_role | theme_url }}">here</a></p>
+</div>
 {% endif %}{% endif %}
 
 <div id="result"></div>
