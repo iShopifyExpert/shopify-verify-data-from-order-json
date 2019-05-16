@@ -1,0 +1,331 @@
+{% assign descriptionParts = product.description | split: "<!-- split -->" %}
+{% if descriptionParts.size > 1%}
+{% assign descriptionFirstPart = descriptionParts | first %}
+{% assign descriptionSecondPart = descriptionParts | last %}
+{% endif %}
+{% include 'breadcrumb' breadcrumb_class:"page-header-breadcrumb" %}
+<div class="container product-template__container page-width template-product {% if section.settings.description_background_color == "alternate" %} pb30 {% endif %}" itemscope itemtype="http://schema.org/Product" id="ProductSection-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="product-page" data-enable-history-state="true">
+  <meta itemprop="name" content="{{ product.title | escape }}">
+  <meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
+  <meta itemprop="image" content="{{ product.featured_image.src | img_url: '800x' }}">
+  {% comment %}
+  Get first variant, or deep linked one
+  {% endcomment %}
+  {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {%- assign current_variant = product.selected_or_first_available_variant -%}
+  {%- assign product_thumb_size = '160x160' -%}
+  {%- assign product_image_zoom_size = '1024x1024' -%}
+  {%- assign enable_zoom = section.settings.enable_zoom -%}
+  {%- assign product_image_width = 'col-sm-6' -%}
+  {%- assign product_description_width = 'col-sm-12' -%}
+  {%- assign product_images_length = product.images | size -%}
+
+  {%- assign product_image_size = '720x720' -%}
+  {%- assign product_image_class = 'large-img' -%}	
+
+  {%- assign featured_img_src = current_variant.featured_image.src | default: product.featured_image.src -%}
+  {%- assign featured_img_alt = current_variant.featured_image.alt | default: product.featured_image.alt -%}
+  <div class="row row-col-norsp product-page-row" id="parent" data-gutter="none">
+    <div class="product_images_length-{{product_images_length}} product-item-image-{{section.settings.description_background_color}} {{ product_image_width }} product-gallery-{{ section.id }}" id="product-gallery">
+      <div class="zoomer ">
+        <img src="#" alt="Zoom image"/>
+      </div>
+      <div class="product-item-wrap {{ product_image_class }} slider-{{ section.id }} equal-columns-{{section.id}}" id="slider">
+        {% if section.settings.image_gallery_type == 'thumbnails_gallery_vertical' or section.settings.image_gallery_type == 'thumbnails_gallery_horizontal' %}
+        {% include 'thumbnails-gallery' %}
+        {% else %}
+        {% include 'slider-gallery' %}
+        {% endif %}
+      </div><!-- <div class="product-item-wrap" id="slider"> -->
+    </div><!-- <div class="col-md-7"> -->
+    <div class="desktop-flex-wrapper">
+      <div class="{{ product_description_width }} product-description-{{ section.id }}" id="product-description">
+        <div class="product-item-caption-white product-item-caption-{{section.settings.description_background_color}} sidebar-{{ section.id }} equal-columns-{{section.id}}" id="sidebar">
+          <header class="product-item-caption-header">
+            <h1 class="product-item-caption-title">{{ product.title | escape }}</h1>
+            <ul class="product-item-caption-price" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+              <meta itemprop="priceCurrency" content="{{ shop.currency }}">
+              <link itemprop="availability" href="http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}">
+              {% if current_variant.compare_at_price > current_variant.price %}
+              <li id="ComparePrice-{{ section.id }}" class="product-item-caption-price-list"><span class="money">{{ current_variant.compare_at_price | money }}</span></li>
+              {% endif %}
+              <li id="ProductPrice-{{ section.id }}" class="product-item-caption-price-current"><span class="money" itemprop="price" content="{{ current_variant.price | divided_by: 100.00 }}">{{ current_variant.price | money }}</span></li>
+            </ul>
+            {% if settings.product_reviews %}
+            <div class="mt10 min_height_22"> 
+              <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+            </div> 
+            {% endif %}
+          </header>
+          {% if descriptionSecondPart != blank%}
+          <div class="product-item-caption-desc border-bottom description-first-part">
+            {{ descriptionFirstPart }}
+          </div>
+          {% endif %}
+          <!-- Galleria code -->
+          {% form 'product', product %}
+          {% if section.settings.show_variants_swatches %}
+
+          <style>
+            .product-select-block-{{ section.id }} {
+              display: none;
+            }
+          </style>
+
+          {% endif %}
+          <div class="product-item-caption-select product-select-block-{{ section.id }}">
+            {% unless product.options.size == 1 and product.variants[0].title contains 'Default' %}
+            {% for option in product.options_with_values %}
+            <div class="selector-wrapper main-product-select-{{product.id}}">
+              <label {% if option.name == 'default' %}class="hidden" {% endif %} for="product-select-{{ option.name }}">
+                {{ option.name }}
+              </label>
+              <select class="single-option-selector" id="SingleOptionSelector-{{ forloop.index0 }}">
+                {% for value in option.values %}
+                <option {% if option.selected_value == value %}selected{% endif %}>{{value}}</option>
+                {% endfor %}
+              </select>
+            </div>  
+            {% endfor %}
+            {% endunless %}
+            <select name="id" id="ProductSelect-{{ product.id }}" data-section="{{ section.id }}" class="product-form__variants hidden">
+              {% for variant in product.variants %}
+              {% if variant.available %}
+              <option {% if section.settings.show_product_quantity %} 
+                      data-invertory_management="{{variant.inventory_management}}" 
+                      data-inventory_policy="{{variant.inventory_policy}}"
+                      data-inventory_quantity="{{variant.inventory_quantity}}"
+                      {% endif %}  
+                      {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title | escape }}</option>
+              {% else %}
+              <option disabled="disabled"
+                      {% if section.settings.show_product_quantity %} 
+                      data-invertory_management="{{variant.inventory_management}}" 
+                      data-inventory_policy="{{variant.inventory_policy}}"
+                      data-inventory_quantity="{{variant.inventory_quantity}}"
+                      value="{{ variant.id }}"
+                      {% endif %}  >{{ variant.title | escape }} - {{ 'products.product.sold_out' | t }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div><!-- <div class="product-item-caption-select"> -->
+          {% if section.settings.show_variants_swatches %}
+          {% unless product.options.size == 1 and product.variants[0].title contains 'Default' %}
+          {% for option in product.options %}
+          {% include 'swatch' with option %}
+          {% endfor %}
+          {% endunless %}
+          {% endif %}
+          <div class="row0" data-gutter="{% if section.settings.show_quantity_selector %}10{% else %}30{% endif %}">
+            {% if section.settings.show_quantity_selector %}
+            {% include 'quantity-selector' %} 
+            {% endif %}
+            {% if shop.customer_accounts_enabled %}{% if customer %}
+            <input type="hidden" id="customer_email" value="{{customer.email}}"/>
+            <input type="hidden" id="customer_school" value="{%for school in customer.tags%}{%if school contains 'Your School: '%}{{school | remove: 'Your School: ' | replace: ' | ',', '}}{%endif%}{%endfor%}"/>
+            <input type="hidden" id="product_id" value="{{product.id}}"/>
+            <input type="hidden" id="event_date" value="{{ 'now' | date: '%Y-%m-%d'}}"/>
+            <div id="verification"></div>
+            <a href="JavaScript:Void(0);" id="verifybutton" class="btn btn-primary btn-lg verify-button">Verify this Dress</a>
+            {% if section.settings.show_smart_checkout%}
+            <div class="product-form__item product-form__item--submit product_payments_btns">
+              <button type="submit" name="add" id="AddToCart-{{ section.id }}" class="btn product-form__cart-submit{% if product.options.size == 1 and product.variants[0].title == 'Default Title' %} product-form__cart-submit--small{% endif %} btn-primary btn-block btn-lg">
+                <span id="AddToCartText-{{ section.id }}">{{ 'products.product.add_to_cart' | t }}</span>
+              </button>
+
+              {{ form | payment_button }}
+            </div>
+            {% else %}
+            <div class="product-form__item product-form__item--submit">
+              <button type="submit" name="add" id="AddToCart-{{ section.id }}" class="btn product-form__cart-submit{% if product.options.size == 1 and product.variants[0].title == 'Default Title' %} product-form__cart-submit--small{% endif %} btn-primary btn-lg">
+                <span id="AddToCartText-{{ section.id }}">{{ 'products.product.add_to_cart' | t }}</span>
+              </button>
+            </div>
+            {% endif %}
+            {% endif %}{% endif %}
+          </div><!-- <div class="row" data-gutter="10"> -->
+          {% endform %}{% if shop.customer_accounts_enabled %}{% if customer %}{%else%}
+          <div class="product-item-caption-desc border-bottom">
+            <p>Login to buy this. <a href="/account/login?url={{ theme_role | theme_url }}">here</a></p>
+          </div>
+          {% endif %}{% endif %}
+          <!-- Galleria code -->
+          <div class="product-item-caption-desc {% if settings.product_reviews or section.settings.show_share_buttons %}border-bottom{% endif %}">
+            {% if descriptionSecondPart != blank%}
+            <div class="product-rte-description main-product-description-{{ section.id }}" >	 
+              {{ descriptionSecondPart }}
+            </div>
+            {% else %}
+            <div class="product-rte-description main-product-description-{{ section.id }}" >	 
+              {{ product.description }}
+            </div>
+            {% endif %} 
+
+            {% if product.description contains '[TABS]' %}
+            <div class="product-description-tabs-{{section.id}} product-description-tabs">
+
+            </div>
+            {% endif %}
+
+            {% if section.settings.show_product_sku or 
+                  section.settings.show_product_vendor or 
+            section.settings.show_product_quantity or
+            section.settings.show_product_tags %}
+            <ul class="product-extra-info">
+              {% if section.settings.show_product_quantity %}
+              <li id="inventory-product-row" class="inventory-product-row-{{section.id }}" style="display:none;">
+                <span id="variant-inventory" class="variant-inventory-{{section.id }}"></span>
+              </li>
+              {% endif %}
+              {% if section.settings.show_product_vendor %}
+              <li>
+                Vendor: {{ product.vendor | link_to_vendor }}
+              </li>
+              {% endif %}
+              {% if section.settings.show_product_sku %}
+              <li id="sku-table-row" class="sku-table-row-{{section.id }}" style="display:none;">
+                SKU:
+                <span id="variant-sku" class="variant-sku-{{section.id }}"></span>
+              </li>
+              {% endif %}
+              {% assign tagsLength = 0 %}
+              {% for tag in product.tags %}
+              {% unless tag contains "_" %}
+              {% assign tagsLength = 1 %}
+              {% break %} 	
+              {% endunless %}
+              {% endfor %}
+
+              {% if section.settings.show_product_tags and tagsLength > 0 %}
+              <li class="tags">
+                Tags:
+                {% for tag in product.tags %}
+                {% unless tag contains "_" %}
+                <a class = "tag" href="/collections/all/{{ tag | handleize }}">{{ tag }}</a>
+                {% endunless %}
+                {% endfor %}
+              </li>
+              {% endif %}
+            </ul>
+            {% endif %}
+          </div>
+          {% if section.settings.show_share_buttons %}
+          {% include 'social-sharing', share_title: product.title, share_permalink: product.url, share_image: product %}
+          {% endif %}   
+          {% if settings.product_reviews %}
+          <script>
+            console.log({{ product.metafields.spr | json }});
+          </script>
+
+          <div id="shopify-product-reviews" data-id="{{product.id}}">{{ product.metafields.spr.reviews }}</div>
+          {% endif %}
+
+        </div><!-- <div class="product-item-caption-white" id="sidebar"> -->
+      </div><!-- <div class="col-md-5"> -->
+    </div><!-- <div itemprop="offers" itemscope itemtype="http://schema.org/Offer"> -->
+  </div><!-- <div class="row row-col-norsp" id="parent" data-gutter="none"> -->
+</div><!-- <div class="product-template__container page-width"> -->
+{% unless product.empty? %}
+
+<script type="application/json" id="ProductJson-{{ section.id }}">
+      {{ product | json }}
+</script>
+
+<script type="application/json" id="ProductTemplate-{{ product.id }}">
+  {
+   "template": "product-page"
+  }
+</script>
+
+{% endunless %}
+<script>
+  var customer_email_c =false,customer_school_c = false,product_id_c =false,event_date_c =false;
+  jQuery(document).ready(function(){
+    var api_url = 'stellatestschool.myshopify.com/admin/api/2019-04/orders.json',
+        key = '3e5987232f469e21aabcc5dbf5488387:aa23dfa15f723b4facb96d992a4d4504';
+    jQuery.ajax({
+      url:"https://"+key+"@"+api_url,
+      //data: function(params) {
+      //   var query = {
+      //      page: params.num || 1,
+      //      limit: 10
+      //   }
+      //   Query parameters will be ?page=2&limit=10&status=any&financial_status=any&fulfillment_status=any&direction=asc
+      //   return query;
+      //}
+      method:"GET",
+      success:function(data){
+        console.log(data);
+        var _orders = data.orders;
+        var email,created_at,product_id,note;
+        if(_orders != null){
+          var customer_email_v =jQuery("#customer_email").val(),customer_school_v = jQuery("#customer_school").val(),
+                product_id_v =jQuery("#product_id").val(),event_date_v =jQuery("#event_date").val();
+          for(var i=0; i<_orders.length; i++){
+            var _customer = _orders[i].customer;
+            var note = _customer !=null ? _customer.note:"";
+            note = note !=null && note != "" ? note.replace("Your School:","") : "";
+            var customer_email,customer_school,product_id,event_date,event_date_y;
+            if(_customer !=null){
+            	customer_email = _customer.email;
+              	customer_school =  _customer.note;
+            	customer_school = customer_school !=null && customer_school != "" ? customer_school.replace("Your School:","") : "";
+              	//event_date 
+            }
+            
+            if(_orders.length > 0 && _orders[0].line_items != null){
+            	product_id = _orders[0].line_items[0].product_id; 
+              	event_date = _orders[0].created_at; 
+              	//event_date = event_date != null ? event_date.find(x=>x.name == "Event Date") : "";
+              	//event_date = event_date ? event_date.value : event_date;
+                var aDate = new Date(event_date);
+              	event_date = aDate.getFullYear() +"-"+(aDate.getMonth()+1) +"-"+ aDate.getDate();
+              	aDate.setFullYear(aDate.getFullYear() + 1);
+                event_date_y = aDate.getFullYear() +"-"+aDate.getMonth() +"-"+ aDate.getDate();
+            }
+            customer_email_c = (customer_email != null && customer_email == customer_email_v) ? true : customer_email_c;
+            event_date_c = (event_date != null && event_date <= event_date_v || (event_date_v <= event_date_y )) ? true : event_date_c;
+          	customer_school = customer_school.trim();
+            customer_school_c = (customer_school != null && customer_school && customer_school_v != null && customer_school_v.indexOf(customer_school.trim()) > -1) ? true : customer_school_c;
+            product_id_c = (product_id != null && product_id == product_id_v) ? true : product_id_c;
+            console.log(customer_email +"=="+ customer_email_v+","+event_date +"=="+ event_date_v+","+customer_school +"=="+ customer_school_v+","+product_id +"=="+ product_id_v);
+            
+          }
+          if(customer_email_c && event_date_c && customer_school_c && product_id_c){
+            $('#AddToCart-product-prom-template').prop('disabled', true);
+            $('#AddToCartText-product-prom-template').text('Purchased Before');
+            $('#verification').text('You have purchased this dress before try another one.');
+            return true;
+          }else{
+            if(event_date_c && customer_school_c && product_id_c){
+                $('#AddToCart-product-prom-template').prop('disabled', true);
+                $('#verification').text('Another customer from your school have this dress.');
+                return true;
+            }else{
+                //$('#verification').text('Congrats! You can purchase this dress. You will look unique at your school.');
+            }
+            return false;
+          }
+        }else{
+          	//alert("false");
+            return false;
+        }
+      }
+    });
+  });
+</script>
+
+{% comment %}
+{% if section.settings.image_gallery_color or section.settings.product_description_color %}
+
+<style>
+  .sidebar-{{ section.id }}, .product-description-{{ section.id }} .nav-tabs > li > a {
+    background-color: {{ section.settings.product_description_color }} !important; 
+  }
+  #sidebar, #product-description .nav-tabs > li > a{
+    background-color: #eeeeee;
+  }
+
+</style>
+{% endif %}
+{% endcomment %}
