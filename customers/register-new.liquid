@@ -28,7 +28,20 @@
         </select>
         {%endcomment%}
       
-        {% include 'state-city-school' %}
+        <label class="fields_label" for="state">State</label>
+        <select class="login-input" name="state" id="state" required>
+          <option value="Choose Your School">Select State</option>
+        </select>
+
+        <label class="fields_label" for="city">City</label>
+        <select class="login-input" name="city" id="city" required>
+          <option value="Choose Your School">Select City</option>
+        </select>
+
+        <label class="fields_label" for="school">Your School</label>
+        <select class="login-input" name="customer[note][Your School]" id="school" required>
+          <option value="Choose Your School">Select Your School</option>
+        </select>
       
         {%comment%}
         {% assign values = settings.all_schools | strip_newlines | replace: '  ',' ' | replace: ' |','|' | replace: '| ','|' | split: '|' %}
