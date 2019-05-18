@@ -39,7 +39,7 @@
         </select>
 
         <label class="fields_label" for="school">Your School</label>
-        <select class="login-input" name="customer[note][Your School]" id="school" required>
+        <select class="login-input" name="school" id="school" required>
           <option value="Choose Your School">Select Your School</option>
         </select>
       
@@ -74,6 +74,7 @@
         {%endcomment%}
       
         <input type="hidden" id="customer_tags" name="customer[tags]" value="Choose Your School"/>
+        <input type="hidden" id="customer_note" name="customer[note][Your School]" value="Choose Your School"/>
         {%comment%}<input type="hidden" id="urlRedirect" name="checkout_url" value="/collections/all" />{%endcomment%}
         
       	 <label class="fields_label" for="CustomerEmail">{{ 'customer.register.email' | t }}</label>
@@ -133,6 +134,7 @@
       var city = $('#city').children("option:selected").data('value').replace(', ', ' - ');
       var school = $('#school').children("option:selected").data('value').replace(', ', ' - ');
       $('#customer_tags').val('Your School: '+school+' | '+city+' | '+state);
+      $('#customer_note').val('Your School: '+school+' | '+city+' | '+state);
     });
   });
 </script>
