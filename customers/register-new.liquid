@@ -1,0 +1,100 @@
+<header class="page-header as-background page-header as-background hero--l-small mb30 vertical-centered" >
+  <div class="page-header-inner-bottom">
+    <h1 class="collection-page-header-title page-header-title-sm ">{{ 'customer.register.title' | t }}</h1>
+  </div>
+</header>
+  {% include 'breadcrumb' breadcrumb_class:"page-header-breadcrumb" %}
+<div class="main-content-inner account-page container">
+  <div class="row">
+    <div class="col-md-4 centered-content">
+      {% form 'create_customer' %}
+        {% include 'form-errors-custom' %}
+         <label class="fields_label" for="FirstName">{{ 'customer.register.first_name' | t }}</label>
+        <input name="customer[first_name]" id="FirstName" class="login-input" type="text" autofocus >
+        
+        <label class="fields_label" for="LastName">{{ 'customer.register.last_name' | t }}</label>
+        <input name="customer[last_name]" id="LastName" class="login-input" type="text">
+      
+        <label class="fields_label" for="PhoneNum">{{ 'customer.addresses.phone' | t }}</label>
+        <input type="tel" id="PhoneNum" class="login-input" name="customer[phone]" placeholder="555-555-1234">
+   
+        {%comment%}
+        <label class="fields_label" for="ChooseCollection">Choose Collection</label>
+        <select name="customer[note][Collection]" id="ChooseCollection" class="login-input">
+          <option value="" selected>Choose Collection</option>
+          {% for collection in collections %}{%if collection.title != 'Home page' %}
+          <option value="{{collection.url}}">{{collection.title}}</option>
+          {% endif %}{% endfor %}
+        </select>
+        {%endcomment%}
+        <label class="fields_label" for="state">State</label>
+<select class="login-input" name="state" id="state" required>
+  <option value="Choose Your School">Select State</option>
+</select>
+
+<label class="fields_label" for="city">City</label>
+<select class="login-input" name="city" id="city" required>
+  <option value="Choose Your School">Select City</option>
+</select>
+
+<label class="fields_label" for="school">Your School</label>
+<select class="login-input" name="customer[note][Your School]" id="school" required>
+  <option value="Choose Your School">Select Your School</option>
+</select>
+
+        <input type="hidden" id="customer_tags" name="customer[tags]" value="Choose Your School"/>
+        {%comment%}<input type="hidden" id="urlRedirect" name="checkout_url" value="/collections/all" />{%endcomment%}
+        
+      	 <label class="fields_label" for="CustomerEmail">{{ 'customer.register.email' | t }}</label>
+      	<input type="email" id="CustomerEmail" name="customer[email]" class="login-input" type="email" autocorrect="off" autocapitalize="off">
+        
+        <label class="fields_label" for="CreatePassword">{{ 'customer.register.password' | t }}</label>
+        <input name="customer[password]" id="CreatePassword" class="login-input" type="password">
+        <button type="submit" class="btn btn-primary">{{ 'customer.register.title' | t }}</button>
+        <p class='mt50'>Have an Account? <a href="/account/login">{{ 'customer.login.title' | t }}</a>
+        </p>
+      {% endform %}
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    load_json_data('state');
+    function load_json_data(id, parent_id) {
+      var html_code = '';
+      $.getJSON('{{"state-city-school.json" | asset_url}}', function(data){
+        html_code += '<option value="">Select '+id+'</option>';
+        $.each(data, function(key, value){
+          if(id == 'state') {
+            if(value.parent_id == '0') {
+              html_code += '<option value="'+value.id+'">'+value.name+'</option>';
+            }
+          } else {
+            if(value.parent_id == parent_id) {
+              html_code += '<option value="'+value.id+'">'+value.name+'</option>';
+            }
+          }
+        });
+        $('#'+id).html(html_code);
+      });
+    }
+    $(document).on('change', '#state', function() {
+      var state_id = $(this).val();
+      if(state_id != '') {
+        load_json_data('city', state_id);
+      } else {
+        $('#city').html('<option value="">Select city</option>');
+        $('#school').html('<option value="">Select school</option>');
+      }
+    });
+    $(document).on('change', '#city', function(){
+      var city_id = $(this).val();
+      if(city_id != '') {
+        load_json_data('school', city_id);
+      } else { 
+        $('#school').html('<option value="">Select school</option>');
+      }
+    });
+  });
+</script>
