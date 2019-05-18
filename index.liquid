@@ -1,0 +1,9 @@
+{{ 'codehouse.js' | asset_url | script_tag }}
+{% if shop.customer_accounts_enabled %}{% if customer %}
+            <input type="hidden" id="customer_email" value="{{customer.email}}"/>
+            <input type="hidden" id="customer_school" value="{%for school in customer.tags%}{%if school contains 'Your School: '%}{{school | remove: 'Your School: '}}{%endif%}{%endfor%}"/>
+            <input type="hidden" id="product_id" value="{{product.id}}"/>
+            <input type="hidden" id="event_date" value="{{ 'now' | date: '%Y-%m-%d'}}"/>
+            <div id="verification"></div>
+            {%comment%}<a href="JavaScript:Void(0);" id="verifybutton" class="btn btn-primary btn-lg verify-button">Verify this Dress</a>{%endcomment%}
+{% endif %}{% endif %}
