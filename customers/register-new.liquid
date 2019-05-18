@@ -27,21 +27,39 @@
           {% endif %}{% endfor %}
         </select>
         {%endcomment%}
-        <label class="fields_label" for="state">State</label>
-<select class="login-input" name="state" id="state" required>
-  <option value="Choose Your School">Select State</option>
-</select>
+      
+        {% include 'state-city-school' %}
+      
+        {%comment%}
+        {% assign values = settings.all_schools | strip_newlines | replace: '  ',' ' | replace: ' |','|' | replace: '| ','|' | split: '|' %}
 
-<label class="fields_label" for="city">City</label>
-<select class="login-input" name="city" id="city" required>
-  <option value="Choose Your School">Select City</option>
-</select>
+        <label class="fields_label" for="states">Select States</label> 
+        {%- capture states -%}{%- for coption in values -%}{%- assign option = coption | split: '_' -%}{{option[0]}}{%- if forloop.last -%}{%- else -%}~{%- endif -%}{%- endfor -%}{%- endcapture -%}
+        {%- assign states1 = states | split: '~' -%}{%- assign states2 = states1 | uniq | join: '~' | split: '~' -%}
 
-<label class="fields_label" for="school">Your School</label>
-<select class="login-input" name="customer[note][Your School]" id="school" required>
-  <option value="Choose Your School">Select Your School</option>
-</select>
+        <select id="states" name="states">{%- for state in states2 -%}
+          <option value="{{state | strip}}">{{state | strip}}</option>{%- endfor -%}
+        </select>
+        
+        {%- capture cities -%}{%- for coption in values -%}{%- assign option = coption | split: '_' -%}{{option[0]}} | {{option[1]}}{%- if forloop.last -%}{%- else -%}~{%- endif -%}{%- endfor -%}{%- endcapture -%}
+        {%- assign cities1 = cities | split: '~' -%}{%- assign cities2 = cities1 | uniq | join: '~' | split: '~' -%}
+      
+        <label class="fields_label" for="city">Select City</label>
+        <select id="city" name="city">
+          <option data-group="SHOW" value="Select City">Select City</option>{%- for city in cities2 -%}{%- assign state = city | split: ' | ' | first -%}{%- assign citi = city | split: ' | ' | last -%}
+          <option data-group="{{state | strip}}" value="{{citi | strip}}">{{citi | strip}}</option>{%- endfor -%}
+        </select>
 
+        {%- capture schools -%}{%- for coption in values -%}{%- assign option = coption | split: '_' -%}{{option[1]}} | {{option[2]}}{%- if forloop.last -%}{%- else -%}~{%- endif -%}{%- endfor -%}{%- endcapture -%}
+        {%- assign schools1 = schools | split: '~' -%}{%- assign schools2 = schools1 | uniq | join: '~' | split: '~' -%}
+      
+        <label class="fields_label" for="SelectSchool">Your School</label>
+        <select class="login-input" name="customer[note][Your School]" id="SelectSchool" required>
+           <option data-group="SHOW" value="Choose Your School">Choose Your School</option>{%- for school in schools2 -%}{%- assign city = school | split: ' | ' | first -%}{%- assign sch = school | split: ' | ' | last -%}
+           <option data-group="{{city | strip}}" value="{{sch | strip}} | {{city | strip}}">{{sch | strip}}</option>{%- endfor -%}
+        </select>
+        {%endcomment%}
+      
         <input type="hidden" id="customer_tags" name="customer[tags]" value="Choose Your School"/>
         {%comment%}<input type="hidden" id="urlRedirect" name="checkout_url" value="/collections/all" />{%endcomment%}
         
@@ -68,11 +86,11 @@
         $.each(data, function(key, value){
           if(id == 'state') {
             if(value.parent_id == '0') {
-              html_code += '<option value="'+value.id+'">'+value.name+'</option>';
+              html_code += '<option value="'+value.id+'" data-value="'+value.name+'">'+value.name+'</option>';
             }
           } else {
             if(value.parent_id == parent_id) {
-              html_code += '<option value="'+value.id+'">'+value.name+'</option>';
+              html_code += '<option value="'+value.id+'" data-value="'+value.name+'">'+value.name+'</option>';
             }
           }
         });
@@ -95,6 +113,13 @@
       } else { 
         $('#school').html('<option value="">Select school</option>');
       }
+    });
+    $('#state, #city').change(function(){ $('#customer_tags').val(''); });
+    $('#school').change(function(){
+      var state = $('#state').children("option:selected").data('value').replace(', ', ' - ');
+      var city = $('#city').children("option:selected").data('value').replace(', ', ' - ');
+      var school = $('#school').children("option:selected").data('value').replace(', ', ' - ');
+      $('#customer_tags').val('Your School: '+school+' | '+city+' | '+state);
     });
   });
 </script>
