@@ -70,14 +70,16 @@ function doValidation(data){
         }
       }
       if(_found){
-        $('#AddToCart-product-prom-template').addClass('disabled').attr('name', 'remove').prop('disabled', true);
+        $('#AddToCart-product-prom-template').addClass('disabled').prop('disabled', true).hide();
+        $('#disabled-button').show();
         //$('#AddToCartText-product-prom-template').text('Purchased Before');
         //$("#verifybutton").hide();
         $('#verification').text('You have purchased this dress before try another one.');
         return true;
       }else{
         if(_another_found){
-          $('#AddToCart-product-prom-template').addClass('disabled').attr('name', 'remove').prop('disabled', true);
+          $('#AddToCart-product-prom-template').addClass('disabled').prop('disabled', true).hide();
+          $('#disabled-button').show();
           $('#verification').text('Another customer from your school have this dress.');
           return true;
         }else{
