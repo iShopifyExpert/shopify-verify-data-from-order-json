@@ -134,7 +134,7 @@
       var city = $('#city').children("option:selected").data('value').replace(', ', ' - ');
       var school = $('#school').children("option:selected").data('value').replace(', ', ' - ');
       $('#customer_tags').val('Your School: '+school+' | '+city+' | '+state);
-      $('#customer_note').val('Your School: '+school+' | '+city+' | '+state);
+      $('#customer_note').val(school+' | '+city+' | '+state);
     });
   });
 </script>
