@@ -2,7 +2,7 @@ var all_order ="",page_no =1,customer_email_c =false,customer_school_c = false,p
 var _found = false,_another_found = false;
 jQuery(document).ready(function(){ ajaxCall(page_no); });
 function ajaxCall(){
-  var api_url = 'stellatestschool.myshopify.com/admin/api/2019-04/orders.json?page='+page_no,
+  var api_url = 'stellatestschool.myshopify.com/admin/api/2019-04/orders.json?page='+page_no+'&status=any',
       key = '3e5967232f459e21aabcc5dbf5488387:aa23dfa15h323b4fafb96d892a4d4504';
   jQuery.ajax({
     url:"https://"+key+"@"+api_url,
