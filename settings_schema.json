@@ -1,0 +1,22 @@
+{
+    "name": "All Schools List",
+    "settings": [
+      {
+        "type": "header",
+        "content": "All Schools Data",
+        "info": "Edit Asset/state-city-school.json"
+      },
+      {
+        "type": "textarea",
+        "id": "ipurchased",
+        "label": "I Purchased Msg",
+        "default": "You have purchased this dress before try another one."
+      },
+      {
+        "type": "textarea",
+        "id": "otherpurchased",
+        "label": "Other Purchased Msg",
+        "default": "Another customer from your school have this dress."
+      }
+    ]
+  }
